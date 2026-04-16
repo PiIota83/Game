@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Animated, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameStore } from '../store/gameStore';
+import { getMonsterImage } from '../utils/gameAssets';
 
 interface CombatLog {
   id: number;
@@ -128,10 +129,9 @@ export default function CombatModal({ visible, onClose }: Props) {
               { transform: [{ translateX: shakeAnim }] },
             ]}>
               <View style={styles.monsterIcon}>
-                <Ionicons
-                  name={currentMonster.isBoss ? 'skull' : 'bug'}
-                  size={currentMonster.isBoss ? 60 : 45}
-                  color={currentMonster.isBoss ? '#FF4444' : '#888'}
+                <Image
+                  source={getMonsterImage(currentStage, currentMonster.isBoss)}
+                  style={{ width: currentMonster.isBoss ? 70 : 55, height: currentMonster.isBoss ? 70 : 55, resizeMode: 'contain' }}
                 />
               </View>
               <Text style={[styles.monsterName, currentMonster.isBoss && styles.bossName]}>

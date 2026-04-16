@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Modal, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Modal, Dimensions, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameStore } from '../src/store/gameStore';
 import { Equipment, EQUIPMENT_TYPES } from '../src/utils/equipment';
+import { EQUIPMENT_IMAGES, FORGE_SCENE, getEquipmentImage } from '../src/utils/gameAssets';
 import InventoryModal from '../src/components/InventoryModal';
 import CombatModal from '../src/components/CombatModal';
 import ArenaModal from '../src/components/ArenaModal';
@@ -97,6 +98,7 @@ export default function MainScreen() {
   const renderEquipSlot = (slotId: string) => {
     const item = equipped[slotId];
     const slotInfo = EQUIPMENT_TYPES.find(t => t.id === slotId);
+    const equipImage = EQUIPMENT_IMAGES[slotId];
 
     return (
       <TouchableOpacity
@@ -109,15 +111,17 @@ export default function MainScreen() {
         onPress={() => { if (item) setSelectedSlot(slotId); }}
         activeOpacity={item ? 0.7 : 1}
       >
-        <Ionicons
-          name={slotInfo?.icon as any || 'help-circle'}
-          size={SLOT_SIZE * 0.45}
-          color={item ? item.rarityColor : '#3A3A4A'}
-        />
-        {item ? (
-          <Text style={[styles.slotPower, { color: item.rarityColor }]}>{item.power}</Text>
+        {equipImage ? (
+          <Image source={equipImage} style={[styles.equipImage, !item && { opacity: 0.2 }]} />
         ) : (
-          <Text style={styles.slotLabel}>{slotInfo?.name?.substring(0, 3) || ''}</Text>
+          <Ionicons
+            name={slotInfo?.icon as any || 'help-circle'}
+            size={SLOT_SIZE * 0.45}
+            color={item ? item.rarityColor : '#3A3A4A'}
+          />
+        )}
+        {item && (
+          <Text style={[styles.slotPower, { color: item.rarityColor }]}>{item.power}</Text>
         )}
       </TouchableOpacity>
     );
@@ -176,6 +180,7 @@ export default function MainScreen() {
 
       {/* === FORGE SECTION === */}
       <View style={styles.forgeSection}>
+        <Image source={FORGE_SCENE} style={styles.forgeBgImage} />
         <Animated.View
           style={[
             styles.forgeGlow,
@@ -248,11 +253,7 @@ export default function MainScreen() {
             {forgedItem && (
               <>
                 <View style={[styles.forgeResultIcon, { backgroundColor: forgedItem.rarityColor + '25' }]}>
-                  <Ionicons
-                    name={EQUIPMENT_TYPES.find(t => t.id === forgedItem.type)?.icon as any || 'help'}
-                    size={48}
-                    color={forgedItem.rarityColor}
-                  />
+                  <Image source={getEquipmentImage(forgedItem.type)} style={styles.forgeResultImage} />
                 </View>
                 <Text style={[styles.forgeResultName, { color: forgedItem.rarityColor }]}>{forgedItem.name}</Text>
                 <Text style={styles.forgeResultRarity}>{forgedItem.rarityName}</Text>
@@ -287,11 +288,7 @@ export default function MainScreen() {
             {selectedSlot && equipped[selectedSlot] && (
               <>
                 <View style={[styles.unequipIcon, { backgroundColor: equipped[selectedSlot]!.rarityColor + '25' }]}>
-                  <Ionicons
-                    name={EQUIPMENT_TYPES.find(t => t.id === selectedSlot)?.icon as any || 'help'}
-                    size={36}
-                    color={equipped[selectedSlot]!.rarityColor}
-                  />
+                  <Image source={getEquipmentImage(selectedSlot)} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
                 </View>
                 <Text style={[styles.unequipName, { color: equipped[selectedSlot]!.rarityColor }]}>
                   {equipped[selectedSlot]!.name}
@@ -428,6 +425,12 @@ const styles = StyleSheet.create({
     borderColor: '#252540',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  equipImage: {
+    width: SLOT_SIZE * 0.75,
+    height: SLOT_SIZE * 0.75,
+    resizeMode: 'contain',
   },
   slotPower: {
     fontSize: 8,
@@ -494,6 +497,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#1A120A',
     borderTopWidth: 2,
     borderTopColor: '#4A2F1A',
+    overflow: 'hidden',
+  },
+  forgeBgImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    opacity: 0.3,
   },
   forgeGlow: {
     position: 'absolute',
@@ -585,6 +596,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  forgeResultImage: {
+    width: 70,
+    height: 70,
+    resizeMode: 'contain',
   },
   forgeResultName: { fontSize: 18, fontWeight: '800' },
   forgeResultRarity: { color: '#888', fontSize: 13, marginTop: 4 },

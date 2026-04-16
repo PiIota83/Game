@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameStore } from '../store/gameStore';
 import { Equipment, EQUIPMENT_TYPES, RARITIES } from '../utils/equipment';
+import { getEquipmentImage } from '../utils/gameAssets';
 
 interface Props {
   visible: boolean;
@@ -71,11 +72,7 @@ export default function InventoryModal({ visible, onClose }: Props) {
               style={[styles.itemSlot, { borderColor: item.rarityColor }]}
               onPress={() => setSelectedItem(item)}
             >
-              <Ionicons
-                name={EQUIPMENT_TYPES.find(t => t.id === item.type)?.icon as any || 'help'}
-                size={22}
-                color={item.rarityColor}
-              />
+              <Image source={getEquipmentImage(item.type)} style={{ width: 36, height: 36, resizeMode: 'contain' }} />
               <Text style={[styles.itemPwr, { color: item.rarityColor }]}>{item.power}</Text>
             </TouchableOpacity>
           )}
@@ -95,11 +92,7 @@ export default function InventoryModal({ visible, onClose }: Props) {
               {selectedItem && (
                 <>
                   <View style={[styles.detailIcon, { backgroundColor: selectedItem.rarityColor + '20' }]}>
-                    <Ionicons
-                      name={EQUIPMENT_TYPES.find(t => t.id === selectedItem.type)?.icon as any || 'help'}
-                      size={40}
-                      color={selectedItem.rarityColor}
-                    />
+                    <Image source={getEquipmentImage(selectedItem.type)} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
                   </View>
                   <Text style={[styles.detailName, { color: selectedItem.rarityColor }]}>{selectedItem.name}</Text>
                   <Text style={styles.detailRarity}>{selectedItem.rarityName}</Text>
